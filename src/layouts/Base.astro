@@ -1,0 +1,50 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+const siteTitle = "ShakaCode AI Strategy";
+const fullTitle = title === "Home" ? siteTitle : `${title} | ${siteTitle}`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{fullTitle}</title>
+    {description && <meta name="description" content={description} />}
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+  </head>
+  <body>
+    <header class="site-header">
+      <a href="/">ShakaCode AI Strategy</a>
+      <nav>
+        <a href="/ai-tools-policy">AI Tools Policy</a>
+        <a href="/executive-chef-model">Executive Chef Model</a>
+        <a href="/industry-survey">Industry Survey</a>
+        <a href="/response-to-team">Response to Team</a>
+        <a href="https://github.com/shakacode/claude-code-commands-skills-agents">Toolkit ↗</a>
+        <a href="https://shakacode.com">ShakaCode ↗</a>
+      </nav>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <p>
+        © {new Date().getFullYear()} <a href="https://shakacode.com">ShakaCode</a>.
+        This content is open source —
+        <a href="https://github.com/shakacode/ai-strategy">contribute on GitHub</a>.
+      </p>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  @import "../styles/global.css";
+</style>

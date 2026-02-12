@@ -1,0 +1,87 @@
+---
+import Base from "../layouts/Base.astro";
+---
+
+<Base
+  title="Home"
+  description="How ShakaCode approaches AI-assisted development — policy, research, and open-source tooling"
+>
+  <h1>AI Strategy at ShakaCode</h1>
+
+  <p>
+    We believe AI-assisted development is the most significant shift in software
+    engineering since open source. This site documents how we're navigating it:
+    our governance model, what we've learned from the industry, and the
+    open-source tooling we've built along the way.
+  </p>
+
+  <p>
+    Everything here is open source. If you disagree with something, think we're
+    missing something, or have a better approach —
+    <a href="https://github.com/shakacode/ai-strategy">open a PR</a>.
+  </p>
+
+  <h2>Core Documents</h2>
+
+  <ul class="article-list">
+    <li>
+      <a href="/executive-chef-model">The Executive Chef Model</a>
+      <p class="description">
+        Our governance framework: every engineer is an executive chef — use
+        whatever AI tools you want, you own what you ship. Backed by DORA
+        research and battle-tested in production.
+      </p>
+    </li>
+    <li>
+      <a href="/ai-tools-policy">AI Tools Policy</a>
+      <p class="description">
+        The internal policy document shared with our team. Covers code review
+        expectations, PR guidelines, quality standards, shared tooling, and how
+        we learn from AI failures constructively.
+      </p>
+    </li>
+    <li>
+      <a href="/industry-survey">Industry Survey: 10 Companies</a>
+      <p class="description">
+        How Shopify, Meta, GitLab, Anthropic, Google/DORA, Amazon, and others
+        are approaching AI governance — with a deep dive on GitLab's five-phase
+        playbook.
+      </p>
+    </li>
+    <li>
+      <a href="/response-to-team">Response to Team Concerns</a>
+      <p class="description">
+        When team members raised concerns about AI tool usage, we published our
+        response openly. This is what transparent governance looks like.
+      </p>
+    </li>
+  </ul>
+
+  <h2>Open-Source Tooling</h2>
+
+  <p>
+    Our AI development toolkit is open source at
+    <a href="https://github.com/shakacode/claude-code-commands-skills-agents">
+      github.com/shakacode/claude-code-commands-skills-agents</a
+    >. It includes slash commands for self-review, security scanning (OWASP Top
+    10), performance optimization, comprehensive PR review, a PR testing agent,
+    and GitHub Actions for automated AI review on every pull request.
+  </p>
+
+  <h2>About ShakaCode</h2>
+
+  <p>
+    <a href="https://shakacode.com">ShakaCode</a> is a consultancy specializing
+    in AI-augmented Ruby on Rails and React development. We're the company
+    behind <a href="https://github.com/shakacode/react_on_rails">React on Rails</a>
+    and the ShakaCode open-source ecosystem. Our products include
+    <a href="https://www.shakacode.com/react-on-rails-pro/">React on Rails Pro</a>,
+    HiChee, and ShakaFlow.
+  </p>
+
+  <p>
+    If your team is navigating AI-assisted development and could use experienced
+    partners who've already built the framework,
+    <a href="https://shakacode.com">reach out</a>.
+  </p>
+</Base>
