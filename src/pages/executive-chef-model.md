@@ -10,6 +10,8 @@ date: "February 2026"
 >
 > — Gilfoyle, *Silicon Valley* S6E6
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/m0b_D2JgZgY?si=4l-szPDrHKfhWWuA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 Every engineering leader I talk to is grappling with the same question: how do you let your team move fast with AI tools without losing control of code quality?
 
 At ShakaCode, we hit this question head-on. Our team was using Claude Code, Cursor, and Copilot aggressively—and getting real results. A client project estimated at 40 hours was delivered in 8. New features were shipping faster than ever. But we also saw AI-generated code introduce subtle performance regressions, skip tests to make CI pass, and create exactly the kind of "solves the easy problem, creates a new hard problem" dynamic that experienced engineers dread.

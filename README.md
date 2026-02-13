@@ -4,12 +4,10 @@ Published at [ai.shakacode.com](https://ai.shakacode.com)
 
 How ShakaCode approaches AI-assisted development: our governance model, industry research, and open-source tooling.
 
-## What's Here
+## Articles
 
-- **[The Executive Chef Model](https://ai.shakacode.com/executive-chef-model)** — Our framework for AI-assisted development. Every engineer is an executive chef: use whatever AI tools you want, you own what you ship.
-- **[AI Tools Policy](https://ai.shakacode.com/ai-tools-policy)** — The internal policy we share with our team. Code review expectations, PR guidelines, quality standards, and how we learn from failures.
-- **[Industry Survey](https://ai.shakacode.com/industry-survey)** — How Shopify, Meta, GitLab, Anthropic, Google/DORA, Amazon, and others are governing AI-assisted development.
-- **[Response to Team Concerns](https://ai.shakacode.com/response-to-team)** — When our team raised concerns, we responded openly. This is what transparent governance looks like.
+- **[The Executive Chef Model](https://ai.shakacode.com/executive-chef-model)** — How we govern AI-assisted development. Every engineer is an executive chef: use whatever AI tools you want, you own what you ship.
+- **[How 10 Companies Are Governing AI-Assisted Development in 2026](https://ai.shakacode.com/industry-survey)** — A survey of AI policies across Shopify, Meta, GitLab, Anthropic, Google/DORA, Amazon, and others.
 
 ## Related
 
@@ -40,10 +38,19 @@ npm run preview  # Preview production build
 
 Merging to `main` triggers an automatic build and deploy to Cloudflare Pages. The site publishes to [ai.shakacode.com](https://ai.shakacode.com).
 
-**Cloudflare Pages settings:**
-- Build command: `npm run build`
-- Build output directory: `dist`
-- Node.js version: 22
+### Connecting this repo to Cloudflare Pages
+
+1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com/) → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**
+2. Select the **shakacode/ai-strategy** repository and authorize access
+3. Configure the build settings:
+   - **Project name:** `ai-strategy`
+   - **Production branch:** `main`
+   - **Framework preset:** Astro
+   - **Build command:** `npm run build`
+   - **Build output directory:** `dist`
+4. Under **Environment variables**, add: `NODE_VERSION` = `22`
+5. Click **Save and Deploy** — Cloudflare will build and publish the site
+6. To use a custom domain (`ai.shakacode.com`): go to **Custom domains** in the Pages project settings, add `ai.shakacode.com`, and create the CNAME record it provides in your DNS
 
 ## About ShakaCode
 

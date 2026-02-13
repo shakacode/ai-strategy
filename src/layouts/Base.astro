@@ -20,14 +20,20 @@ const fullTitle = title === "Home" ? siteTitle : `${title} | ${siteTitle}`;
   </head>
   <body>
     <header class="site-header">
-      <a href="/">ShakaCode AI Strategy</a>
+      <div class="header-top">
+        <a href="/" class="header-logo">
+          <img src="/shakacode-logo.svg" alt="ShakaCode" width="149" height="34" />
+          <span class="header-title">AI Strategy</span>
+        </a>
+        <a href="https://github.com/shakacode/ai-strategy" class="header-oss-badge">
+          Open Source
+        </a>
+      </div>
       <nav>
-        <a href="/ai-tools-policy">AI Tools Policy</a>
         <a href="/executive-chef-model">Executive Chef Model</a>
         <a href="/industry-survey">Industry Survey</a>
-        <a href="/response-to-team">Response to Team</a>
         <a href="https://github.com/shakacode/claude-code-commands-skills-agents">Toolkit ↗</a>
-        <a href="https://shakacode.com">ShakaCode ↗</a>
+        <a href="mailto:justin@shakacode.com">Contact Us</a>
       </nav>
     </header>
 
@@ -36,6 +42,16 @@ const fullTitle = title === "Home" ? siteTitle : `${title} | ${siteTitle}`;
     </main>
 
     <footer class="site-footer">
+      <div class="footer-cta">
+        <p>
+          <strong>Need help with AI-assisted development?</strong>
+          ShakaCode helps teams adopt AI tooling with the right guardrails.
+        </p>
+        <div class="footer-cta-links">
+          <a href="mailto:justin@shakacode.com" class="cta-button">Email justin@shakacode.com</a>
+          <a href="https://meetings.hubspot.com/justingordon/30-minute-consultation" class="cta-button cta-secondary">Book a Call</a>
+        </div>
+      </div>
       <p>
         © {new Date().getFullYear()} <a href="https://shakacode.com">ShakaCode</a>.
         This content is open source —

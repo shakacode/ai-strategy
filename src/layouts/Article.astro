@@ -1,14 +1,8 @@
 ---
 import Base from "./Base.astro";
 
-interface Props {
-  title: string;
-  description?: string;
-  author?: string;
-  date?: string;
-}
-
-const { title, description, author, date } = Astro.props;
+const { frontmatter } = Astro.props;
+const { title, description, author, date } = frontmatter;
 ---
 
 <Base title={title} description={description}>
@@ -24,5 +18,18 @@ const { title, description, author, date } = Astro.props;
       )
     }
     <slot />
+
+    <hr />
+    <section class="contribute">
+      <p>
+        <strong>This article is open source.</strong> Found an error? Have a different perspective?
+        <a href="https://github.com/shakacode/ai-strategy/issues/new">Open an issue</a> or
+        <a href="https://github.com/shakacode/ai-strategy/pulls">submit a PR</a> —
+        we welcome contributions from the community.
+      </p>
+      <p>
+        <a href="https://github.com/shakacode/ai-strategy">View on GitHub</a>
+      </p>
+    </section>
   </article>
 </Base>
