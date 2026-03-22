@@ -1,5 +1,35 @@
 ---
 import Base from "../layouts/Base.astro";
+
+const articles = [
+  {
+    href: "/codex-desktop-projects-worktrees-cleanup",
+    title: "Codex Desktop App: Projects, Worktrees, Threads, and Cleanup",
+    description:
+      "A practical guide to Codex desktop app workspace behavior: what Worktree mode means, when to create a new project, and how auto-cleanup and retention settings work.",
+    category: "Codex App Guide",
+    date: "March 2026",
+  },
+  {
+    href: "/executive-chef-model",
+    title: "The Executive Chef Model",
+    description:
+      "How we govern AI-assisted development at ShakaCode. Every engineer is an executive chef: use whatever AI tools you want, and own what you ship.",
+    category: "Governance Model",
+    date: "February 2026",
+  },
+  {
+    href: "/industry-survey",
+    title: "How 10 Companies Are Governing AI-Assisted Development in 2026",
+    description:
+      "A survey of AI development policies across Shopify, Meta, GitLab, Anthropic, Google/DORA, Amazon, and others — with lessons for engineering leaders.",
+    category: "Industry Research",
+    date: "February 2026",
+  },
+];
+
+const featuredArticle = articles[0] ?? null;
+const otherArticles = articles.slice(1);
 ---
 
 <Base
@@ -18,41 +48,48 @@ import Base from "../layouts/Base.astro";
   <p>
     Everything here is open source. If you disagree with something, think we're
     missing something, or have a better approach —
-    <a href="https://github.com/shakacode/ai-strategy">open a PR</a>.
+    <a href="https://github.com/shakacode/ai.shakacode.com/issues/new">open an issue</a>.
   </p>
 
-  <h2>Articles</h2>
+  <section class="article-showcase">
+    <h2>Featured Reading</h2>
+    <p class="showcase-intro">
+      Explore our latest writing on AI-assisted engineering, from practical
+      Codex workflows to policy and governance patterns.
+    </p>
 
-  <ul class="article-list">
-    <li>
-      <a href="/codex-desktop-projects-worktrees-cleanup"
-        >Codex Desktop App: Projects, Worktrees, Threads, and Cleanup</a
-      >
-      <p class="description">
-        A practical guide to Codex desktop app workspace behavior: what
-        Worktree mode means, when to create a new project, and how auto-cleanup
-        and retention settings work.
-      </p>
-    </li>
-    <li>
-      <a href="/executive-chef-model">The Executive Chef Model</a>
-      <p class="description">
-        How we govern AI-assisted development at ShakaCode. Every engineer is an
-        executive chef — use whatever AI tools you want, you own what you ship.
-        Backed by DORA research and battle-tested in production.
-      </p>
-    </li>
-    <li>
-      <a href="/industry-survey"
-        >How 10 Companies Are Governing AI-Assisted Development in 2026</a
-      >
-      <p class="description">
-        A survey of AI development policies across Shopify, Meta, GitLab,
-        Anthropic, Google/DORA, Amazon, and others — with lessons for
-        engineering leaders.
-      </p>
-    </li>
-  </ul>
+    {
+      featuredArticle && (
+        <article class="featured-article">
+          <p class="article-kicker">
+            {featuredArticle.category} · {featuredArticle.date}
+          </p>
+          <h3>
+            <a href={featuredArticle.href}>{featuredArticle.title}</a>
+          </h3>
+          <p>{featuredArticle.description}</p>
+          <a class="read-more" href={featuredArticle.href}>Read featured article →</a>
+        </article>
+      )
+    }
+
+    <div class="article-grid">
+      {
+        otherArticles.map((article) => (
+          <article class="article-card">
+            <p class="article-kicker">
+              {article.category} · {article.date}
+            </p>
+            <h3>
+              <a href={article.href}>{article.title}</a>
+            </h3>
+            <p>{article.description}</p>
+            <a class="read-more" href={article.href}>Read article →</a>
+          </article>
+        ))
+      }
+    </div>
+  </section>
 
   <h2>Open-Source Tooling</h2>
 

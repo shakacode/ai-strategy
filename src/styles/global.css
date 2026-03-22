@@ -7,6 +7,8 @@
   --color-accent-hover: #2c5282;
   --color-border: #e2e8f0;
   --color-surface: #f7fafc;
+  --color-surface-featured: #f8fbff;
+  --color-border-featured: #bfd7f4;
   --color-blockquote-border: #cbd5e0;
   --max-width: 740px;
 }
@@ -303,30 +305,72 @@ pre code {
   margin-bottom: 0;
 }
 
-.article-list {
-  list-style: none;
-  padding: 0;
+.article-showcase {
+  margin-bottom: 2.5rem;
 }
 
-.article-list li {
-  margin-bottom: 1.75rem;
+.showcase-intro {
+  color: var(--color-text-muted);
+  margin-bottom: 1rem;
 }
 
-.article-list a {
-  font-size: 1.15rem;
+.featured-article,
+.article-card {
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 1.15rem 1.25rem;
+  background: var(--color-bg);
+}
+
+.featured-article {
+  background: linear-gradient(
+    180deg,
+    var(--color-surface-featured) 0%,
+    var(--color-bg) 100%
+  );
+  border-color: var(--color-border-featured);
+  margin-bottom: 0.9rem;
+}
+
+.article-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.article-kicker {
+  margin-bottom: 0.45rem;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
   font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
-.article-list .description {
-  color: var(--color-text-muted);
-  margin-top: 0.25rem;
-  font-size: 0.95rem;
+.featured-article h3,
+.article-card h3 {
+  margin: 0 0 0.45rem;
+  line-height: 1.3;
 }
 
-.article-list .meta {
-  color: var(--color-text-muted);
-  font-size: 0.85rem;
-  margin-top: 0.15rem;
+.featured-article h3 a,
+.article-card h3 a {
+  color: var(--color-heading);
+}
+
+.featured-article p,
+.article-card p {
+  margin-bottom: 0.75rem;
+}
+
+.featured-article .article-kicker,
+.article-card .article-kicker {
+  margin-bottom: 0.45rem;
+}
+
+.read-more {
+  font-weight: 600;
+  font-size: 0.92rem;
 }
 
 .bio {
@@ -336,4 +380,10 @@ pre code {
   margin-top: 2rem;
   padding-top: 1.5rem;
   border-top: 1px solid var(--color-border);
+}
+
+@media (max-width: 720px) {
+  .article-grid {
+    grid-template-columns: 1fr;
+  }
 }

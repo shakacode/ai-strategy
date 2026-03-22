@@ -16,7 +16,7 @@ Our AI development toolkit is a separate repo: [shakacode/claude-code-commands-s
 
 ## Contributing
 
-This is an open-source repo. If you disagree with something, think we're missing something, or want to share how your team handles AI governance — open a PR or start a discussion.
+This is an open-source repo. If you disagree with something, think we're missing something, or want to share how your team handles AI governance — open an issue or start a discussion.
 
 We're especially interested in:
 - How other teams are implementing governance frameworks
