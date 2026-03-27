@@ -34,7 +34,7 @@ Think of a subagent as a focused helper inside your current task. Codex can spaw
 
 Use this rule of thumb:
 
-- **Create a new project** when you are switching to a different folder/repository, or when you want a separate long-lived permanent worktree from the same repo.
+- **For project decisions**, use the guidance in "When to Create a New Project vs Reuse One" below.
 - **Create a new thread** when you want a separate top-level conversation in the same project.
 - **Ask for subagents** when you want parallel work inside the current task.
 
