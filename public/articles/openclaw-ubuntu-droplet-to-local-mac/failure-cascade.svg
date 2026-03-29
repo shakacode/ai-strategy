@@ -32,8 +32,8 @@
       .band { fill: rgba(255,255,255,0.82); stroke: #e2e8f0; stroke-width: 1.25; }
       .band-label { font: 700 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 0.16em; text-transform: uppercase; fill: #475569; }
       .card { stroke: #cbd5e1; stroke-width: 1.5; }
-      .title { font: 700 28px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; }
-      .body { font: 500 18px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #334155; }
+      .title { font: 700 26px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; }
+      .body { font: 500 17px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #334155; }
       .meta { font: 600 15px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #475569; }
       .line { stroke: #1e293b; stroke-width: 4; fill: none; marker-end: url(#arrow); }
       .note-pill { fill: rgba(255,255,255,0.96); stroke: #f59e0b; stroke-width: 1.25; }
@@ -53,38 +53,62 @@
 
   <rect class="card" x="52" y="108" width="206" height="98" rx="24" fill="url(#good-fill)" filter="url(#shadow)" />
   <text class="title" x="80" y="150">State copied</text>
-  <text class="body" x="80" y="182">OpenClaw directory lands on the Mac</text>
+  <text class="body" x="80" y="182">
+    <tspan x="80" dy="0">OpenClaw directory</tspan>
+    <tspan x="80" dy="22">lands on the Mac</tspan>
+  </text>
 
   <rect class="card" x="292" y="108" width="206" height="98" rx="24" fill="url(#neutral-fill)" filter="url(#shadow)" />
   <text class="title" x="322" y="150">Gateway starts</text>
-  <text class="body" x="322" y="182">Process boots and status is available</text>
+  <text class="body" x="322" y="182">
+    <tspan x="322" dy="0">Process boots and</tspan>
+    <tspan x="322" dy="22">status is available</tspan>
+  </text>
 
   <rect class="card" x="532" y="108" width="230" height="98" rx="24" fill="url(#warn-fill)" filter="url(#shadow)" />
   <text class="title" x="560" y="150">Looks healthy</text>
-  <text class="body" x="560" y="182">Slack and WhatsApp still appear connected</text>
+  <text class="body" x="560" y="182">
+    <tspan x="560" dy="0">Slack and WhatsApp</tspan>
+    <tspan x="560" dy="22">still appear connected</tspan>
+  </text>
 
   <rect class="note-pill" x="578" y="70" width="138" height="32" rx="16" />
   <text class="note-text" x="600" y="90">Status lied here</text>
 
   <rect class="card" x="796" y="108" width="272" height="98" rx="24" fill="url(#bad-fill)" filter="url(#shadow)" />
   <text class="title" x="824" y="150">Hidden defect</text>
-  <text class="body" x="824" y="182">Migrated session state still points at /root</text>
+  <text class="body" x="824" y="182">
+    <tspan x="824" dy="0">Migrated session state</tspan>
+    <tspan x="824" dy="22">still points at /root</tspan>
+  </text>
 
   <rect class="card" x="796" y="248" width="272" height="104" rx="24" fill="url(#bad-fill)" filter="url(#shadow)" />
   <text class="title" x="824" y="292">Runtime crash</text>
-  <text class="body" x="824" y="324">Inbound message hits ENOENT mkdir '/root'</text>
+  <text class="body" x="824" y="324">
+    <tspan x="824" dy="0">Inbound message hits</tspan>
+    <tspan x="824" dy="22">ENOENT mkdir '/root'</tspan>
+  </text>
 
   <rect class="card" x="220" y="312" width="246" height="110" rx="24" fill="url(#neutral-fill)" filter="url(#shadow)" />
   <text class="title" x="248" y="356">Rewrite paths</text>
-  <text class="body" x="248" y="388">openclaw.json, sessions, approvals, cron</text>
+  <text class="body" x="248" y="388">
+    <tspan x="248" dy="0">openclaw.json, sessions,</tspan>
+    <tspan x="248" dy="22">approvals, cron</tspan>
+  </text>
 
   <rect class="card" x="500" y="312" width="212" height="110" rx="24" fill="url(#neutral-fill)" filter="url(#shadow)" />
   <text class="title" x="528" y="356">Restart gateway</text>
-  <text class="body" x="528" y="388">Load the repaired state cleanly</text>
+  <text class="body" x="528" y="388">
+    <tspan x="528" dy="0">Load the repaired</tspan>
+    <tspan x="528" dy="22">state cleanly</tspan>
+  </text>
 
   <rect class="card" x="746" y="312" width="288" height="110" rx="24" fill="url(#good-fill)" filter="url(#shadow)" />
   <text class="title" x="774" y="356">Replies restored</text>
-  <text class="body" x="774" y="388">Slack and WhatsApp both round-trip again</text>
+  <text class="body" x="774" y="388">
+    <tspan x="774" dy="0">Slack and WhatsApp</tspan>
+    <tspan x="774" dy="22">both round-trip again</tspan>
+  </text>
 
   <path class="line" d="M 258 157 C 270 157, 280 157, 292 157" />
   <path class="line" d="M 498 157 C 510 157, 520 157, 532 157" />

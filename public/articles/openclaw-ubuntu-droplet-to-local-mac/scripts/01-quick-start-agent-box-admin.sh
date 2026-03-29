@@ -7,6 +7,24 @@ AGENTS_USER="${AGENTS_USER:-agents}"
 AGENTS_FULL_NAME="${AGENTS_FULL_NAME:-AI Agents}"
 AGENTS_PASSWORD="${AGENTS_PASSWORD:-}"
 
+find_brew_bin() {
+  local candidate
+
+  if command -v brew >/dev/null 2>&1; then
+    command -v brew
+    return 0
+  fi
+
+  for candidate in /opt/homebrew/bin/brew /usr/local/bin/brew; do
+    if [[ -x "$candidate" ]]; then
+      printf '%s\n' "$candidate"
+      return 0
+    fi
+  done
+
+  return 1
+}
+
 echo "=== Phase 1: system setup ==="
 softwareupdate --install --all || echo "No updates available or a reboot is required."
 fdesetup status | grep -q "On" || sudo fdesetup enable
@@ -46,10 +64,15 @@ if ! command -v brew >/dev/null 2>&1; then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
-eval "$(/opt/homebrew/bin/brew shellenv)"
+BREW_BIN="$(find_brew_bin)" || {
+  echo "Homebrew was expected but no brew executable was found." >&2
+  exit 1
+}
+
+eval "$("$BREW_BIN" shellenv)"
 
 if ! grep -q 'brew shellenv' "$HOME/.zprofile" 2>/dev/null; then
-  printf '\n%s\n' 'eval "$(/opt/homebrew/bin/brew shellenv zsh)"' >> "$HOME/.zprofile"
+  printf '\n%s\n' "eval \"\$($BREW_BIN shellenv)\"" >> "$HOME/.zprofile"
 fi
 
 brew install git gh node python@3.12 ripgrep tmux

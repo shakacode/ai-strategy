@@ -61,7 +61,7 @@ if command -v openclaw >/dev/null 2>&1; then
 fi
 
 echo "=== Searching for remaining references to $SOURCE_ROOT ==="
-if rg -n --hidden --glob '!.git/**' --glob '!browser/**' "$SOURCE_ROOT" "$TARGET_ROOT"; then
+if rg -n --hidden --glob '!.git/**' --glob '!browser/**' --glob '!*.bak' "$SOURCE_ROOT" "$TARGET_ROOT"; then
   echo "Some references remain. Review the files above before starting the gateway." >&2
   exit 1
 else

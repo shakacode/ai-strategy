@@ -21,8 +21,13 @@ The article keeps both SVG and Mermaid diagrams on purpose. The SVGs are ready f
 7. Run [`08-verify-openclaw-migration.sh`](08-verify-openclaw-migration.sh) on the destination Mac.
 8. Before decommissioning the source, run [`09-backup-openclaw-from-source.sh`](09-backup-openclaw-from-source.sh) on the main Mac.
 
+If the destination Mac will also host iMessage, treat BlueBubbles as a separate Mac-only setup after step 7. Do not try to "migrate" BlueBubbles or Messages state from Ubuntu.
+
+Treat browser automation the same way: install Playwright on the Mac, then create fresh headed login state under the destination user's home. In our setup that meant `~/.browser-state/<agent>.json` plus `~/.playwright-profiles/<agent>/` on the Mac. Do not publish or commit saved browser auth state.
+
 ## Important
 
 - Do not copy `~/.config/gh/` from the source machine.
 - Do not copy the source machine's SSH private key unless you explicitly want the same key material on two machines.
 - Do not publish real copies of `openclaw.json`, `credentials/`, `identity/`, or `.env.*`.
+- Do not grant Full Disk Access to Terminal, `node`, or OpenClaw just to make iMessage work. If you use BlueBubbles, grant it to BlueBubbles itself.

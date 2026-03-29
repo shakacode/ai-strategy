@@ -8,6 +8,8 @@ date: "March 2026"
 
 We recently moved a live OpenClaw agent off an Ubuntu droplet and onto a local Mac that now serves as a dedicated agent workstation. The surprising part was not installing OpenClaw on macOS. The hard part was preserving the long-lived state that made the agent useful in the first place: WhatsApp sessions, Slack auth, cron definitions, Google client secrets, 1Password service-account config, and the runtime session files OpenClaw had already accumulated.
 
+One thing to be explicit about: macOS-only channels do not "migrate" from Ubuntu. We added iMessage later through BlueBubbles, and that was a separate Mac-side bring-up after the core Ubuntu state had already landed cleanly on the destination machine.
+
 This guide is the runbook I wish we had before we started. It is based on the real migration path we executed, but everything here is sanitized. Hostnames, IP addresses, usernames, email addresses, and secrets have been replaced with placeholders.
 
 If you are moving an agent from a cloud Ubuntu box to a local Mac, this is the sequence I would follow now.
@@ -77,6 +79,17 @@ Do not think about this as "move the repo." Think about it as "move the runtime 
 - the entire Ubuntu home directory unless you have no better inventory
 
 For GitHub on the destination Mac, create a new SSH key and run `gh auth login` again under the destination user. That is cleaner than copying the VPS private key.
+
+### State you must create fresh on the Mac
+
+- `~/Library/Messages/` plus an active Messages.app sign-in under the `agents` user
+- `~/Library/Application Support/bluebubbles-server/config.db`
+- macOS privacy permissions such as BlueBubbles Full Disk Access and Messages automation approval
+- browser profiles and Playwright state that live under the destination user's macOS home
+- saved browser auth state such as `~/.browser-state/<agent>.json`
+- per-agent browser profile directories such as `~/.playwright-profiles/<agent>/`
+
+Those are destination-side concerns. They did not exist on the Ubuntu droplet, so no amount of copying `/root/.openclaw` will produce them.
 
 ## The Migration Order That Worked
 
@@ -198,7 +211,39 @@ This sets up:
 - `@anthropic-ai/claude-code`
 - `playwright` and Chromium
 
+If this agent will also handle iMessage, sign in to Messages.app under the `agents` user before touching BlueBubbles. We lost time by treating `~/Library/Messages/chat.db` readability as proof that iMessage was ready. It was not. The real check was much simpler: Messages.app had to be signed in, online, and able to complete a real send/receive from that macOS user.
+
 If your agent account needs its own GitHub identity, do not reuse the admin user's key or `gh` session.
+
+### Browser automation is another Mac-side bootstrap
+
+Playwright itself migrates fine as a package install. Browser auth state does not.
+
+Treat browser automation the same way we treated BlueBubbles: as fresh destination state that must be created on the Mac after the `agents` user is live. In practice that meant:
+
+1. launch a headed browser session under the `agents` macOS user
+2. log into the sites the agent actually needs
+3. save the resulting auth state under the destination user's home
+4. keep that state local and out of Git
+
+The important point is operational, not tool-specific. Do not assume copied Linux cookies or browser profiles will become a reliable long-term macOS automation setup. Bring up the browser state fresh on the destination machine and prove one real automated navigation works before you declare the agent ready.
+
+On our M1 agent box, we kept the reusable browser state under `~/.browser-state/` and per-agent Chromium profiles under `~/.playwright-profiles/<agent>/`. The one-time bootstrap for Jay looked like this:
+
+```bash
+mkdir -p "$HOME/.browser-state" "$HOME/.playwright-profiles/jay"
+"$HOME/.npm-global/bin/agent-browser-login" --agent jay --url https://google.com
+```
+
+That command opened a headed Chrome session for Jay. After logging into the required sites, we returned to the terminal and pressed Enter so the wrapper could save the auth state to `~/.browser-state/jay.json`.
+
+The quick verification step was:
+
+```bash
+"$HOME/.npm-global/bin/agent-browser-smoke" --agent jay --url https://example.com
+```
+
+For us, that smoke test was enough to prove the saved state loaded, Chromium could launch under the destination user, and Jay had a working browser automation baseline before we moved on to site-specific tasks.
 
 ## Step 4: Bootstrap the Agent's GitHub Identity
 
@@ -308,12 +353,54 @@ This script checks:
 - `openclaw status` runs
 - `openclaw gateway status` runs
 
-Then do two manual probes:
+Then do manual probes:
 
 1. Send a Slack message to the migrated agent.
 2. Send a WhatsApp message to the migrated agent.
+3. If the Mac also hosts BlueBubbles, send an iMessage to the migrated agent.
 
-In our migration, this was the only validation that really mattered. Slack and WhatsApp both had to receive and reply after the path rewrite.
+In our migration, this was the only validation that really mattered. Slack and WhatsApp both had to receive and reply after the path rewrite. Once we added BlueBubbles, iMessage had to pass the same standard.
+
+## Step 8.5: Add iMessage on the Mac with BlueBubbles
+
+This part is intentionally separate from the Ubuntu migration. Your droplet never had access to macOS Messages, so there is nothing to copy from Linux. Treat iMessage as a fresh Mac-side integration that you bring up only after Slack and WhatsApp are already healthy on the destination box.
+
+We considered two routes:
+
+- `BlueBubbles`: richer feature set and the OpenClaw-recommended path for iMessage
+- `imsg`: simpler legacy CLI, but being phased out
+
+We used BlueBubbles.
+
+The sequence that worked:
+
+1. Sign in to Messages.app under the `agents` user and prove one real send/receive works.
+2. Install BlueBubbles Server on the Mac.
+3. If Gatekeeper blocks the app because the build is signed but unnotarized, stop and make an explicit trust decision before overriding the warning.
+4. Grant **Full Disk Access to BlueBubbles only**. Do not grant it to Terminal, `node`, or OpenClaw.
+5. In BlueBubbles, use the manual setup path if OpenClaw is the only client. Firebase/Google is optional for a local Web API integration.
+6. Enable the Web API, set a strong password, and leave Private API disabled. We did **not** disable SIP.
+7. Point OpenClaw at the local BlueBubbles server and keep the webhook path explicit.
+
+The OpenClaw-side shape looked like this:
+
+```json
+"bluebubbles": {
+  "enabled": true,
+  "serverUrl": "http://127.0.0.1:1234",
+  "password": "<bluebubbles-password>",
+  "webhookPath": "/bluebubbles-webhook",
+  "allowPrivateNetwork": true,
+  "dmPolicy": "pairing",
+  "groupPolicy": "allowlist"
+}
+```
+
+That `allowPrivateNetwork` flag mattered for us because the BlueBubbles server lived on `127.0.0.1`, and the initial OpenClaw probe blocked loopback until we set it explicitly.
+
+One more version-specific gotcha: after mutating BlueBubbles config on OpenClaw `2026.3.28`, we always ran `openclaw config validate` immediately. We hit a case where the CLI reintroduced a legacy `enrichGroupParticipantsFromContacts` key, and that blocked the gateway reload until we removed it.
+
+The final BlueBubbles validation was exactly the same as every other channel: send a real iMessage, approve pairing if prompted, and confirm the agent replies.
 
 ## The Companion Scripts
 
@@ -333,6 +420,10 @@ All scripts for this runbook are in [`scripts/`](/articles/openclaw-ubuntu-dropl
 
 There is also a [`scripts/README.md`](/articles/openclaw-ubuntu-droplet-to-local-mac/scripts/README.md) with the same order in a shorter form.
 
+BlueBubbles/iMessage setup is intentionally manual in this package because it depends on macOS GUI state, Messages activation, TCC permissions, and your own trust decision about the app binary.
+
+Browser automation bootstrap is also intentionally manual because login state, cookies, and saved profiles are destination-local secrets that need a real GUI session at least once.
+
 ## Redaction and Security Rules
 
 If you turn your real migration notes into a reusable document, sanitize these categories before publishing:
@@ -340,8 +431,10 @@ If you turn your real migration notes into a reusable document, sanitize these c
 - public IP addresses
 - `.local` hostnames
 - personal email addresses
+- Apple IDs used for Messages sign-in
 - phone numbers used for WhatsApp probes
 - Slack user IDs and channel IDs
+- BlueBubbles server URLs, passwords, and webhook paths
 - Google OAuth client IDs
 - 1Password service-account tokens
 - anything under `credentials/`, `identity/`, or `.env.*`
@@ -351,6 +444,8 @@ I also recommend never publishing raw copies of:
 - `openclaw.json`
 - `.env.1password`
 - `google-client-secret.json`
+- `~/Library/Messages/chat.db`
+- `~/Library/Application Support/bluebubbles-server/config.db`
 - any real session archive under `agents/main/sessions/`
 
 Use placeholders like:
@@ -382,6 +477,7 @@ Do not destroy the droplet until all of this is true:
 - you have a second offline or local backup
 - Slack replies work
 - WhatsApp replies work
+- if BlueBubbles is configured, iMessage replies work
 - cron jobs are present
 - the gateway starts cleanly after a restart
 
@@ -393,6 +489,8 @@ If you want the safest cutover, power the droplet off for 24 hours before deleti
 - Assume the bridge copy will be easier than direct SSH from the destination user.
 - Treat `openclaw doctor --fix` as mandatory after migration.
 - Search for stale Linux roots inside all session state before sending the first real message.
-- Validate with live Slack and WhatsApp probes before declaring success.
+- Treat BlueBubbles as a fresh Mac-only bring-up, not as migrated Ubuntu state.
+- Grant Full Disk Access to BlueBubbles, not Terminal, `node`, or OpenClaw.
+- Validate with live Slack, WhatsApp, and optionally iMessage probes before declaring success.
 
 That is the sequence I would trust now.

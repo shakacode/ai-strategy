@@ -36,7 +36,7 @@ for path in "${required_paths[@]}"; do
 done
 
 echo "=== Checking for stale Linux path references ==="
-if rg -n --hidden --glob '!.git/**' --glob '!browser/**' "$SOURCE_ROOT_REGEX" "$TARGET_ROOT"; then
+if rg -n --hidden --glob '!.git/**' --glob '!browser/**' --glob '!*.bak' "$SOURCE_ROOT_REGEX" "$TARGET_ROOT"; then
   echo "Stale Linux paths remain in the migrated state." >&2
   exit 1
 fi
@@ -56,4 +56,5 @@ echo
 echo "=== Manual probes still required ==="
 echo "1. Send a Slack message to the migrated agent."
 echo "2. Send a WhatsApp message to the migrated agent."
-echo "3. Confirm the agent replies on both channels."
+echo "3. If BlueBubbles/iMessage is configured on this Mac, send an iMessage too."
+echo "4. Confirm the agent replies on every configured channel."

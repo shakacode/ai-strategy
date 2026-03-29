@@ -17,7 +17,8 @@ BOOTSTRAP_SSH_OPTS=(
   -o ConnectTimeout=5
 )
 
-REMOTE_TARGET="${AGENT_BOX_ADMIN_USER}@${AGENT_BOX_HOST}"
+REMOTE_ADMIN_TARGET="${AGENT_BOX_ADMIN_USER}@${AGENT_BOX_HOST}"
+REMOTE_AGENTS_TARGET="${AGENT_BOX_AGENTS_USER}@${AGENT_BOX_HOST}"
 
 pick_local_key() {
   if [[ -f "$HOME/.ssh/id_ed25519" && -f "$HOME/.ssh/id_ed25519.pub" ]]; then
@@ -57,6 +58,9 @@ rewrite_ssh_config() {
       skip = is_target_host_line($0)
       if (skip) next
     }
+    /^[[:space:]]*Match[[:space:]]+/ {
+      skip = 0
+    }
     skip { next }
     { print }
   ' "$SSH_CONFIG_FILE" > "$tmp_file"
@@ -93,10 +97,18 @@ bootstrap_remote_access() {
 
   echo "This prompt is for the macOS password of '$AGENT_BOX_ADMIN_USER' on the destination Mac."
 
-  ssh "${BOOTSTRAP_SSH_OPTS[@]}" "$REMOTE_TARGET" \
+  ssh "${BOOTSTRAP_SSH_OPTS[@]}" "$REMOTE_ADMIN_TARGET" \
     'umask 077; mkdir -p ~/.ssh; touch ~/.ssh/authorized_keys; chmod 700 ~/.ssh; chmod 600 ~/.ssh/authorized_keys'
 
-  ssh "${BOOTSTRAP_SSH_OPTS[@]}" "$REMOTE_TARGET" \
+  ssh "${BOOTSTRAP_SSH_OPTS[@]}" "$REMOTE_ADMIN_TARGET" \
+    "grep -qxF '$pubkey' ~/.ssh/authorized_keys || printf '%s\n' '$pubkey' >> ~/.ssh/authorized_keys"
+
+  echo "This prompt is for the macOS password of '$AGENT_BOX_AGENTS_USER' on the destination Mac."
+
+  ssh "${BOOTSTRAP_SSH_OPTS[@]}" "$REMOTE_AGENTS_TARGET" \
+    'umask 077; mkdir -p ~/.ssh; touch ~/.ssh/authorized_keys; chmod 700 ~/.ssh; chmod 600 ~/.ssh/authorized_keys'
+
+  ssh "${BOOTSTRAP_SSH_OPTS[@]}" "$REMOTE_AGENTS_TARGET" \
     "grep -qxF '$pubkey' ~/.ssh/authorized_keys || printf '%s\n' '$pubkey' >> ~/.ssh/authorized_keys"
 }
 
@@ -116,6 +128,7 @@ copy_keypair_to_remote() {
 
 verify_non_interactive_ssh() {
   ssh -o BatchMode=yes agent-box 'printf "agent-box-ok\n"' >/dev/null
+  ssh -o BatchMode=yes agent-box-agents 'printf "agent-box-agents-ok\n"' >/dev/null
 }
 
 install_remote_shell_helpers() {
@@ -147,7 +160,7 @@ echo "Port 22 is reachable on $AGENT_BOX_HOST"
 
 echo "=== Bootstrapping password-based SSH ==="
 bootstrap_remote_access
-echo "Public key added to authorized_keys"
+echo "Public key added to authorized_keys for both SSH aliases"
 
 echo "=== Optional private-key copy for destination admin GitHub use ==="
 copy_keypair_to_remote
