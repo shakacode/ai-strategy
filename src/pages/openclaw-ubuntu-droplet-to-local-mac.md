@@ -12,6 +12,11 @@ This guide is the runbook I wish we had before we started. It is based on the re
 
 If you are moving an agent from a cloud Ubuntu box to a local Mac, this is the sequence I would follow now.
 
+<div class="article-callout">
+  <p class="article-callout-kicker">Migration principle</p>
+  <p><strong>Move the runtime state, not just the repo.</strong> The cutover only works if credentials, browser identity, cron definitions, session archives, and machine-specific config survive with it.</p>
+</div>
+
 ## The System Topology
 
 We ended up with three machines and two macOS users:
@@ -22,17 +27,26 @@ We ended up with three machines and two macOS users:
 - **Agent box admin user**: your admin macOS account for Homebrew, system settings, and remote access
 - **Agent box agents user**: a separate standard macOS account for the actual AI agent identity and browser state
 
-The article intentionally includes both SVG and Mermaid versions of the diagrams. The SVGs are publishing-friendly, and the Mermaid blocks keep the diagrams editable in Git.
+Each diagram includes a publication-ready SVG and a collapsible Mermaid source block so the flow stays editable in Git.
 
-![Migration topology](/articles/openclaw-ubuntu-droplet-to-local-mac/migration-topology.svg)
+<figure class="diagram-card">
+  <img
+    src="/articles/openclaw-ubuntu-droplet-to-local-mac/migration-topology.svg"
+    alt="Migration topology showing an Ubuntu source bridged through a main Mac into a destination Mac with separate admin and agents users."
+  />
+  <figcaption>
+    <strong>Topology:</strong> bridge through the main Mac, keep the admin account separate from the runtime account, and treat the `agents` login as its own machine identity.
+  </figcaption>
+</figure>
 
-```mermaid
-flowchart LR
-  A["Ubuntu droplet<br>/root/.openclaw"] -->|backup + bridge| B["Main Mac<br>SSH trust to both sides"]
-  B -->|bootstrap SSH + Screen Sharing| C["Agent box admin user<br>system setup"]
-  B -->|bridge scripts| D["Agent box agents user<br>/Users/<agents-user>/.openclaw"]
-  D --> E["OpenClaw gateway<br>Slack + WhatsApp + cron"]
-```
+<details class="diagram-source">
+  <summary>View Mermaid source</summary>
+  <pre><code class="language-mermaid">flowchart LR
+  A["Ubuntu droplet&lt;br&gt;/root/.openclaw"] --&gt;|backup + bridge| B["Main Mac&lt;br&gt;SSH trust to both sides"]
+  B --&gt;|bootstrap SSH + Screen Sharing| C["Agent box admin user&lt;br&gt;system setup"]
+  B --&gt;|bridge scripts| D["Agent box agents user&lt;br&gt;/Users/&lt;agents-user&gt;/.openclaw"]
+  D --&gt; E["OpenClaw gateway&lt;br&gt;Slack + WhatsApp + cron"]</code></pre>
+</details>
 
 ## What Actually Matters to Preserve
 
@@ -94,29 +108,36 @@ ENOENT: no such file or directory, mkdir '/root'
 
 The issue was not Slack auth. It was stale path references embedded in migrated session state. Some of the copied files still pointed at Linux paths like `/root/.openclaw`, so inbound messages crashed before delivery.
 
-![Failure cascade and repair](/articles/openclaw-ubuntu-droplet-to-local-mac/failure-cascade.svg)
+<figure class="diagram-card">
+  <img
+    src="/articles/openclaw-ubuntu-droplet-to-local-mac/failure-cascade.svg"
+    alt="Failure cascade showing a copied state, misleading healthy status, stale Linux paths, runtime crash, repair, restart, and restored replies."
+  />
+  <figcaption>
+    <strong>Failure pattern:</strong> status can look healthy while the migrated session state still points at Linux paths. The real test is whether a live message can round-trip after the rewrite.
+  </figcaption>
+</figure>
 
-Here is the failure chain:
+<details class="diagram-source">
+  <summary>View Mermaid source</summary>
+  <pre><code class="language-mermaid">flowchart TD
+  A["State copied to Mac"] --&gt; B["Gateway starts"]
+  B --&gt; C["Slack + WhatsApp appear connected"]
+  C --&gt; D["Inbound message arrives"]
+  D --&gt; E["Runtime still references the old Linux root"]
+  E --&gt; F["ENOENT: mkdir '/root'"]
+  F --&gt; G["Rewrite migrated state to the new macOS root"]
+  G --&gt; H["Restart gateway"]
+  H --&gt; I["Replies resume"]</code></pre>
+</details>
 
-```mermaid
-flowchart TD
-  A["State copied to Mac"] --> B["Gateway starts"]
-  B --> C["Slack + WhatsApp appear connected"]
-  C --> D["Inbound message arrives"]
-  D --> E["Runtime still references the old Linux root"]
-  E --> F["ENOENT: mkdir '/root'"]
-  F --> G["Rewrite migrated state to the new macOS root"]
-  G --> H["Restart gateway"]
-  H --> I["Replies resume"]
-```
-
-The companion script [`scripts/07-rewrite-openclaw-paths-for-macos.sh`](https://github.com/shakacode/sc-articles/blob/0feb8c8a38e354726cf445be8e7760e4e8c308ec/ai/openclaw-ubuntu-droplet-to-local-mac/scripts/07-rewrite-openclaw-paths-for-macos.sh) exists specifically because of that failure.
+The companion script [`scripts/07-rewrite-openclaw-paths-for-macos.sh`](/articles/openclaw-ubuntu-droplet-to-local-mac/scripts/07-rewrite-openclaw-paths-for-macos.sh) exists specifically because of that failure.
 
 ## Step 1: Prepare the Agent Box Mac
 
 Run the admin bootstrap script on the destination Mac as your admin macOS user:
 
-- [`scripts/01-quick-start-agent-box-admin.sh`](https://github.com/shakacode/sc-articles/blob/0feb8c8a38e354726cf445be8e7760e4e8c308ec/ai/openclaw-ubuntu-droplet-to-local-mac/scripts/01-quick-start-agent-box-admin.sh)
+- [`scripts/01-quick-start-agent-box-admin.sh`](/articles/openclaw-ubuntu-droplet-to-local-mac/scripts/01-quick-start-agent-box-admin.sh)
 
 What it does:
 
@@ -140,7 +161,7 @@ That first local GUI login matters. In our migration, Screen Sharing user switch
 
 Run this on your main Mac:
 
-- [`scripts/02-quick-start-main-machine.sh`](https://github.com/shakacode/sc-articles/blob/0feb8c8a38e354726cf445be8e7760e4e8c308ec/ai/openclaw-ubuntu-droplet-to-local-mac/scripts/02-quick-start-main-machine.sh)
+- [`scripts/02-quick-start-main-machine.sh`](/articles/openclaw-ubuntu-droplet-to-local-mac/scripts/02-quick-start-main-machine.sh)
 
 This script fixes several problems we hit in the original version:
 
@@ -168,7 +189,7 @@ In our case, the failure was not the hostname itself. The deeper issue was that 
 
 Log in once to the `agents` user locally on the destination Mac. Then run:
 
-- [`scripts/03-quick-start-agents-user.sh`](https://github.com/shakacode/sc-articles/blob/0feb8c8a38e354726cf445be8e7760e4e8c308ec/ai/openclaw-ubuntu-droplet-to-local-mac/scripts/03-quick-start-agents-user.sh)
+- [`scripts/03-quick-start-agents-user.sh`](/articles/openclaw-ubuntu-droplet-to-local-mac/scripts/03-quick-start-agents-user.sh)
 
 This sets up:
 
@@ -183,7 +204,7 @@ If your agent account needs its own GitHub identity, do not reuse the admin user
 
 Run this as the `agents` user:
 
-- [`scripts/04-bootstrap-agent-github.sh`](https://github.com/shakacode/sc-articles/blob/0feb8c8a38e354726cf445be8e7760e4e8c308ec/ai/openclaw-ubuntu-droplet-to-local-mac/scripts/04-bootstrap-agent-github.sh)
+- [`scripts/04-bootstrap-agent-github.sh`](/articles/openclaw-ubuntu-droplet-to-local-mac/scripts/04-bootstrap-agent-github.sh)
 
 This script:
 
@@ -201,13 +222,13 @@ There are two ways to do this.
 
 ### Option A: direct copy from the `agents` user
 
-- [`scripts/05-migrate-openclaw-state-direct.sh`](https://github.com/shakacode/sc-articles/blob/0feb8c8a38e354726cf445be8e7760e4e8c308ec/ai/openclaw-ubuntu-droplet-to-local-mac/scripts/05-migrate-openclaw-state-direct.sh)
+- [`scripts/05-migrate-openclaw-state-direct.sh`](/articles/openclaw-ubuntu-droplet-to-local-mac/scripts/05-migrate-openclaw-state-direct.sh)
 
 Use this only if the `agents` account on the destination Mac already has SSH trust to the Ubuntu source.
 
 ### Option B: bridge through the main Mac
 
-- [`scripts/06-bridge-openclaw-state.sh`](https://github.com/shakacode/sc-articles/blob/0feb8c8a38e354726cf445be8e7760e4e8c308ec/ai/openclaw-ubuntu-droplet-to-local-mac/scripts/06-bridge-openclaw-state.sh)
+- [`scripts/06-bridge-openclaw-state.sh`](/articles/openclaw-ubuntu-droplet-to-local-mac/scripts/06-bridge-openclaw-state.sh)
 
 This is the path we actually ended up using. It was better because:
 
@@ -224,11 +245,11 @@ It also reapplies restrictive permissions on the destination side.
 
 Treat `~/.config/gogcli` as "worth copying, but not guaranteed portable." In many cases it saves a full Google re-auth flow. In some cases you will still need to re-authorize Gmail or Calendar on the new machine.
 
-## Step 5.5: Make a Separate Backup Before You Decommission Anything
+## Step 5.5: Take a Separate Backup Before You Decommission Anything
 
 Run this on the main Mac:
 
-- [`scripts/09-backup-openclaw-from-source.sh`](https://github.com/shakacode/sc-articles/blob/0feb8c8a38e354726cf445be8e7760e4e8c308ec/ai/openclaw-ubuntu-droplet-to-local-mac/scripts/09-backup-openclaw-from-source.sh)
+- [`scripts/09-backup-openclaw-from-source.sh`](/articles/openclaw-ubuntu-droplet-to-local-mac/scripts/09-backup-openclaw-from-source.sh)
 
 That gives you one more safety net outside the destination Mac itself. In our migration, having a separate local backup made the final decommission decision much easier.
 
@@ -251,7 +272,7 @@ This was the decisive repair step.
 
 Run:
 
-- [`scripts/07-rewrite-openclaw-paths-for-macos.sh`](https://github.com/shakacode/sc-articles/blob/0feb8c8a38e354726cf445be8e7760e4e8c308ec/ai/openclaw-ubuntu-droplet-to-local-mac/scripts/07-rewrite-openclaw-paths-for-macos.sh)
+- [`scripts/07-rewrite-openclaw-paths-for-macos.sh`](/articles/openclaw-ubuntu-droplet-to-local-mac/scripts/07-rewrite-openclaw-paths-for-macos.sh)
 
 What it rewrites:
 
@@ -278,7 +299,7 @@ SOURCE_ROOT=/home/ubuntu/.openclaw TARGET_ROOT="$HOME/.openclaw" \
 
 Run:
 
-- [`scripts/08-verify-openclaw-migration.sh`](https://github.com/shakacode/sc-articles/blob/0feb8c8a38e354726cf445be8e7760e4e8c308ec/ai/openclaw-ubuntu-droplet-to-local-mac/scripts/08-verify-openclaw-migration.sh)
+- [`scripts/08-verify-openclaw-migration.sh`](/articles/openclaw-ubuntu-droplet-to-local-mac/scripts/08-verify-openclaw-migration.sh)
 
 This script checks:
 
@@ -296,7 +317,7 @@ In our migration, this was the only validation that really mattered. Slack and W
 
 ## The Companion Scripts
 
-All scripts for this runbook are in [`scripts/`](https://github.com/shakacode/sc-articles/blob/0feb8c8a38e354726cf445be8e7760e4e8c308ec/ai/openclaw-ubuntu-droplet-to-local-mac/scripts/).
+All scripts for this runbook are in [`scripts/`](/articles/openclaw-ubuntu-droplet-to-local-mac/scripts/).
 
 | Script | Where to run it | Purpose |
 | --- | --- | --- |
@@ -310,7 +331,7 @@ All scripts for this runbook are in [`scripts/`](https://github.com/shakacode/sc
 | `08-verify-openclaw-migration.sh` | destination Mac `agents` user | post-migration verification |
 | `09-backup-openclaw-from-source.sh` | main Mac | make a second local backup before decommissioning |
 
-There is also a [`scripts/README.md`](https://github.com/shakacode/sc-articles/blob/0feb8c8a38e354726cf445be8e7760e4e8c308ec/ai/openclaw-ubuntu-droplet-to-local-mac/scripts/README.md) with the same order in a shorter form.
+There is also a [`scripts/README.md`](/articles/openclaw-ubuntu-droplet-to-local-mac/scripts/README.md) with the same order in a shorter form.
 
 ## Redaction and Security Rules
 
@@ -375,10 +396,3 @@ If you want the safest cutover, power the droplet off for 24 hours before deleti
 - Validate with live Slack and WhatsApp probes before declaring success.
 
 That is the sequence I would trust now.
-
-Aloha,
-Justin
-
----
-
-*If your team is moving long-lived AI agents between environments and wants help making the cutover boring, [we should talk](https://www.shakacode.com).*
