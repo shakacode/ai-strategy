@@ -37,7 +37,7 @@ Each diagram includes a publication-ready SVG and a collapsible Mermaid source b
     alt="Migration topology showing an Ubuntu source bridged through a main Mac into a destination Mac with separate admin and agents users."
   />
   <figcaption>
-    <strong>Topology:</strong> bridge through the main Mac, keep the admin account separate from the runtime account, and treat the `agents` login as its own machine identity.
+    <strong>Topology:</strong> bridge through the main Mac, keep the admin account separate from the runtime account, and treat the <code>agents</code> login as its own machine identity.
   </figcaption>
 </figure>
 
@@ -193,7 +193,7 @@ It also **does not** copy the main Mac's private key to the destination Mac by d
 Bonjour hostnames are convenient until they are not. If the destination Mac's `.local` hostname is flaky, rerun with:
 
 ```bash
-AGENT_BOX_HOST=<ip-or-tailnet-name> bash scripts/02-quick-start-main-machine.sh
+AGENT_BOX_HOST="your-ip-or-tailnet-name" bash scripts/02-quick-start-main-machine.sh
 ```
 
 In our case, the failure was not the hostname itself. The deeper issue was that the original script copied keys to the Mac but never actually authorized the main Mac's key for login.
